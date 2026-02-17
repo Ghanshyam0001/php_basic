@@ -1,1 +1,146 @@
 
+   async function downloadPDF() {
+            try {
+                const invoiceNum = document.getElementById('invNum').value || 'INV-2024-001';
+
+                const element = document.getElementById('invoicePaper');
+                const btn = document.querySelector('.btn-primary');
+                const originalText = btn.innerHTML;
+
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating PDF...';
+                btn.disabled = true;
+
+                const opt = {
+                    margin: [10, 10, 10, 10],
+                    filename: `Invoice-${document.getElementById('invNum').value || 'invoice'}.pdf`,
+                    image: {
+                        type: 'jpeg',
+                        quality: 0.98
+                    },
+                    html2canvas: {
+                        scale: 2,
+                        useCORS: true,
+                        scrollY: 0,
+                        logging: false,
+                        backgroundColor: '#ffffff',
+                        letterRendering: true,
+                    },
+                    jsPDF: {
+                        unit: 'mm',
+                        format: 'a4',
+                        orientation: 'portrait'
+                    }
+                };
+
+                await html2pdf().set(opt).from(element).save();
+                const savepdf = await html2pdf().set(opt).from(element).outputPdf('blob');
+
+                const formData = new FormData();
+                formData.append('pdf', savepdf, `Invoice-${invoiceNum}.pdf`);
+                formData.append('invoiceNum', invoiceNum);
+
+                const response = await fetch('save_pdf.php', {
+                    method: 'POST',
+                    body: formData
+                });
+
+
+
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+
+                showNotification('PDF invoice downloaded successfully!', 'success');
+
+            } catch (error) {
+                console.error('PDF generation error:', error);
+                const btn = document.querySelector('.btn-primary');
+                btn.innerHTML = '<i class="fas fa-file-pdf"></i> Download PDF Invoice';
+                btn.disabled = false;
+                showNotification('Error generating PDF. Please try again.', 'error');
+            }
+        }
+
+
+<?php
+
+
+
+---
+
+
+$upload_base = "uploads/";
+
+
+if (is_dir($upload_base)) {
+
+  $folders = scandir($upload_base);
+
+  foreach ($folders as $folder) {
+
+    if ($folder != "." && $folder != "..") {
+
+      $folder_path = $upload_base . $folder;
+
+      if (is_dir($folder_path)) {
+
+        // Convert folder name (Y-m-d) to timestamp
+        $folder_time = strtotime($folder);
+
+        // If folder date older than 30 days
+        if ($folder_time && $folder_time < strtotime("-30 days")) {
+
+          // Delete all files inside folder
+          $files = glob($folder_path . "/*");
+          foreach ($files as $file) {
+            if (is_file($file)) {
+              unlink($file);
+            }
+          }
+
+   
+          rmdir($folder_path);
+        }
+      }
+    }
+  }
+}
+
+---
+
+if(isset($_FILES['pdf'])) {
+
+    $folder_name = date('Y-m-d');
+    $destination_path = $upload_base . $folder_name;
+
+    if (!is_dir($destination_path)) {
+        mkdir($destination_path, 0755, true);
+    }
+
+    $file_name = "Invoice_" . date('Y-m-d_H-i-s') . ".pdf";
+    $file_path = $destination_path . "/" . $file_name;
+
+    if(move_uploaded_file($_FILES['pdf']['tmp_name'], $file_path)) {
+
+       
+        $full_url = "http://" . $_SERVER['HTTP_HOST'] . "/" . $file_path;
+
+        echo json_encode([
+            "status" => "success",
+            "file_url" => $full_url
+        ]);
+
+    } else {
+        echo json_encode([
+            "status" => "error"
+        ]);
+    }
+}
+
+
+
+
+
+
+
+
+
