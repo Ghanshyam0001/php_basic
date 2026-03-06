@@ -1,146 +1,135 @@
+<body class="bg-gray-100">
 
-   async function downloadPDF() {
-            try {
-                const invoiceNum = document.getElementById('invNum').value || 'INV-2024-001';
+<div class="max-w-7xl mx-auto p-6 bg-white rounded-lg shadow">
 
-                const element = document.getElementById('invoicePaper');
-                const btn = document.querySelector('.btn-primary');
-                const originalText = btn.innerHTML;
+<!-- Title -->
+<h2 class="text-xl font-semibold mb-6">Service Focus</h2>
 
-                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating PDF...';
-                btn.disabled = true;
+<!-- 6 Column Grid -->
+<div class="grid grid-cols-1 md:grid-cols-6 gap-6">
 
-                const opt = {
-                    margin: [10, 10, 10, 10],
-                    filename: `Invoice-${document.getElementById('invNum').value || 'invoice'}.pdf`,
-                    image: {
-                        type: 'jpeg',
-                        quality: 0.98
-                    },
-                    html2canvas: {
-                        scale: 2,
-                        useCORS: true,
-                        scrollY: 0,
-                        logging: false,
-                        backgroundColor: '#ffffff',
-                        letterRendering: true,
-                    },
-                    jsPDF: {
-                        unit: 'mm',
-                        format: 'a4',
-                        orientation: 'portrait'
-                    }
-                };
+<!-- Left Services -->
+<div class="md:col-span-2 space-y-3">
 
-                await html2pdf().set(opt).from(element).save();
-                const savepdf = await html2pdf().set(opt).from(element).outputPdf('blob');
+<button class="w-full flex justify-between items-center border p-3 rounded-lg hover:bg-gray-50">
+Maintenance & Support
+<span>›</span>
+</button>
 
-                const formData = new FormData();
-                formData.append('pdf', savepdf, `Invoice-${invoiceNum}.pdf`);
-                formData.append('invoiceNum', invoiceNum);
+<button class="w-full flex justify-between items-center border border-yellow-500 bg-yellow-50 p-3 rounded-lg">
+IT Services
+<span>›</span>
+</button>
 
-                const response = await fetch('save_pdf.php', {
-                    method: 'POST',
-                    body: formData
-                });
+<button class="w-full flex justify-between items-center border p-3 rounded-lg hover:bg-gray-50">
+Software Development
+<span>›</span>
+</button>
 
+<button class="w-full flex justify-between items-center border p-3 rounded-lg hover:bg-gray-50">
+Cloud Computing Services
+<span>›</span>
+</button>
 
+<button class="w-full flex justify-between items-center border p-3 rounded-lg hover:bg-gray-50">
+Bot Development
+<span>›</span>
+</button>
 
-                btn.innerHTML = originalText;
-                btn.disabled = false;
+<button class="w-full flex justify-between items-center border p-3 rounded-lg hover:bg-gray-50">
+BPO Services
+<span>›</span>
+</button>
 
-                showNotification('PDF invoice downloaded successfully!', 'success');
+</div>
 
-            } catch (error) {
-                console.error('PDF generation error:', error);
-                const btn = document.querySelector('.btn-primary');
-                btn.innerHTML = '<i class="fas fa-file-pdf"></i> Download PDF Invoice';
-                btn.disabled = false;
-                showNotification('Error generating PDF. Please try again.', 'error');
-            }
-        }
+<!-- Middle Chart -->
+<div class="md:col-span-2 flex justify-center items-center">
 
+<div class="w-48 h-48 rounded-full bg-[conic-gradient(#7a6245_30%,#9a7d55_20%,#b6976a_10%,#6a5740_10%,#856d4f_20%,#5d4c38_10%)] flex items-center justify-center">
+<div class="w-24 h-24 bg-white rounded-full"></div>
+</div>
 
-<?php
+</div>
 
+<!-- Right Content -->
+<div class="md:col-span-2">
 
+<h3 class="font-semibold mb-3">Focus of IT Services</h3>
 
----
+<ul class="space-y-2 text-sm">
 
+<li class="flex items-center gap-2">
+<span class="w-2 h-2 bg-yellow-700 rounded-full"></span>
+Cyber Security - 10%
+</li>
 
-$upload_base = "uploads/";
+<li class="flex items-center gap-2">
+<span class="w-2 h-2 bg-yellow-700 rounded-full"></span>
+Staff Augmentation - 10%
+</li>
 
+<li class="flex items-center gap-2">
+<span class="w-2 h-2 bg-yellow-700 rounded-full"></span>
+IT & Networking - 30%
+</li>
 
-if (is_dir($upload_base)) {
+<li class="flex items-center gap-2">
+<span class="w-2 h-2 bg-yellow-700 rounded-full"></span>
+Outsourcing - 10%
+</li>
 
-  $folders = scandir($upload_base);
+<li class="flex items-center gap-2">
+<span class="w-2 h-2 bg-yellow-700 rounded-full"></span>
+Network & System Administration - 30%
+</li>
 
-  foreach ($folders as $folder) {
+<li class="flex items-center gap-2">
+<span class="w-2 h-2 bg-yellow-700 rounded-full"></span>
+IT Consulting - 10%
+</li>
 
-    if ($folder != "." && $folder != "..") {
+</ul>
 
-      $folder_path = $upload_base . $folder;
+</div>
 
-      if (is_dir($folder_path)) {
-
-        // Convert folder name (Y-m-d) to timestamp
-        $folder_time = strtotime($folder);
-
-        // If folder date older than 30 days
-        if ($folder_time && $folder_time < strtotime("-30 days")) {
-
-          // Delete all files inside folder
-          $files = glob($folder_path . "/*");
-          foreach ($files as $file) {
-            if (is_file($file)) {
-              unlink($file);
-            }
-          }
-
-   
-          rmdir($folder_path);
-        }
-      }
-    }
-  }
-}
-
----
-
-if(isset($_FILES['pdf'])) {
-
-    $folder_name = date('Y-m-d');
-    $destination_path = $upload_base . $folder_name;
-
-    if (!is_dir($destination_path)) {
-        mkdir($destination_path, 0755, true);
-    }
-
-    $file_name = "Invoice_" . date('Y-m-d_H-i-s') . ".pdf";
-    $file_path = $destination_path . "/" . $file_name;
-
-    if(move_uploaded_file($_FILES['pdf']['tmp_name'], $file_path)) {
-
-       
-        $full_url = "http://" . $_SERVER['HTTP_HOST'] . "/" . $file_path;
-
-        echo json_encode([
-            "status" => "success",
-            "file_url" => $full_url
-        ]);
-
-    } else {
-        echo json_encode([
-            "status" => "error"
-        ]);
-    }
-}
+</div>
 
 
+<!-- Industry Focus -->
+<div class="mt-10">
+
+<h2 class="text-xl font-semibold mb-4">Industry Focus</h2>
+
+<div class="flex flex-wrap gap-3">
+
+<span class="px-4 py-2 border border-yellow-500 rounded-md">Business Services - 50%</span>
+<span class="px-4 py-2 border border-yellow-500 rounded-md">Education - 10%</span>
+<span class="px-4 py-2 border border-yellow-500 rounded-md">Real Estate - 10%</span>
+<span class="px-4 py-2 border border-yellow-500 rounded-md">Startups - 10%</span>
+<span class="px-4 py-2 border border-yellow-500 rounded-md">Healthcare & Medical - 5%</span>
+<span class="px-4 py-2 border border-yellow-500 rounded-md">Hospitality - 5%</span>
+<span class="px-4 py-2 border border-yellow-500 rounded-md">Legal & Compliance - 5%</span>
+<span class="px-4 py-2 border border-yellow-500 rounded-md">Transportation & Logistics - 5%</span>
+
+</div>
+
+</div>
 
 
+<!-- Client Focus -->
+<div class="mt-10">
 
+<h2 class="text-xl font-semibold mb-4">Client Focus</h2>
 
+<div class="w-full bg-gray-200 h-2 rounded-full">
+<div class="bg-yellow-600 h-2 rounded-full w-full"></div>
+</div>
 
+<p class="text-sm mt-2">100% Small Business</p>
 
+</div>
 
+</div>
+
+</body>
