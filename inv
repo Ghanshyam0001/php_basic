@@ -141,3 +141,85 @@ $data = DB::table('company_services as cs')
     ->select('s.name as sub_service_name', 'css.percentage')
     ->get()
     ->toArray();
+
+<canvas id="serviceChart" width="400" height="400"></canvas>
+
+<input type="hidden" id="company_id" value="1">
+
+<button class="service-btn" data-service="1">Web Development</button>
+<button class="service-btn" data-service="2">Mobile App</button>
+<button class="service-btn" data-service="3">Digital Marketing</button>
+
+var ctx = document.getElementById('serviceChart').getContext('2d');
+
+var serviceChart = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+        labels: [],
+        datasets: [{
+            data: [],
+            backgroundColor: [
+                '#ff6384',
+                '#36a2eb',
+                '#ffce56',
+                '#4bc0c0',
+                '#9966ff'
+            ]
+        }]
+    },
+    options: {
+        responsive: true
+    }
+});
+$(document).on("click",".service-btn",function(){
+
+    var service_id = $(this).data("service");
+    var company_id = $("#company_id").val();
+
+    $.ajax({
+        url: "/get-sub-services",
+        type: "POST",
+        data: {
+            service_id: service_id,
+            company_id: company_id,
+            _token: $('meta[name="csrf-token"]').attr('content')
+        },
+        success: function(response){
+
+            var labels = [];
+            var values = [];
+
+            response.forEach(function(item){
+                labels.push(item.sub_service_name);
+                values.push(item.percentage);
+            });
+
+            // UPDATE CHART
+            serviceChart.data.labels = labels;
+            serviceChart.data.datasets[0].data = values;
+            serviceChart.update();
+
+        }
+    });
+
+});
+
+public function getSubServices(Request $request)
+{
+    $company_id = $request->company_id;
+    $service_id = $request->service_id;
+
+    $data = DB::table('company_services as cs')
+        ->join('company_sub_services as css', 'cs.id', '=', 'css.company_services_id')
+        ->join('services as s', 's.id', '=', 'css.sub_service_id')
+        ->where('cs.company_id', $company_id)
+        ->where('cs.service_id', $service_id)
+        ->select('s.name as sub_service_name', 'css.percentage')
+        ->get();
+
+    return response()->json($data);
+}
+
+
+
+Route::post('/get-sub-services', [CompanyController::class,'getSubServices']);
