@@ -133,3 +133,11 @@ IT Consulting - 10%
 </div>
 
 </body>
+$data = DB::table('company_services as cs')
+    ->join('company_sub_services as css', 'cs.id', '=', 'css.company_services_id')
+    ->join('services as s', 's.id', '=', 'css.sub_service_id')
+    ->where('cs.company_id', $company_id)
+    ->where('cs.service_id', $service_id)
+    ->select('s.name as sub_service_name', 'css.percentage')
+    ->get()
+    ->toArray();
