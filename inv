@@ -1,225 +1,49 @@
-<body class="bg-gray-100">
+Route::get('/export-descriptions', [DescriptionExportController::class, 'export']);
 
-<div class="max-w-7xl mx-auto p-6 bg-white rounded-lg shadow">
+<?php
 
-<!-- Title -->
-<h2 class="text-xl font-semibold mb-6">Service Focus</h2>
+namespace App\Http\Controllers;
 
-<!-- 6 Column Grid -->
-<div class="grid grid-cols-1 md:grid-cols-6 gap-6">
+use Illuminate\Support\Facades\DB;
 
-<!-- Left Services -->
-<div class="md:col-span-2 space-y-3">
-
-<button class="w-full flex justify-between items-center border p-3 rounded-lg hover:bg-gray-50">
-Maintenance & Support
-<span>›</span>
-</button>
-
-<button class="w-full flex justify-between items-center border border-yellow-500 bg-yellow-50 p-3 rounded-lg">
-IT Services
-<span>›</span>
-</button>
-
-<button class="w-full flex justify-between items-center border p-3 rounded-lg hover:bg-gray-50">
-Software Development
-<span>›</span>
-</button>
-
-<button class="w-full flex justify-between items-center border p-3 rounded-lg hover:bg-gray-50">
-Cloud Computing Services
-<span>›</span>
-</button>
-
-<button class="w-full flex justify-between items-center border p-3 rounded-lg hover:bg-gray-50">
-Bot Development
-<span>›</span>
-</button>
-
-<button class="w-full flex justify-between items-center border p-3 rounded-lg hover:bg-gray-50">
-BPO Services
-<span>›</span>
-</button>
-
-</div>
-
-<!-- Middle Chart -->
-<div class="md:col-span-2 flex justify-center items-center">
-
-<div class="w-48 h-48 rounded-full bg-[conic-gradient(#7a6245_30%,#9a7d55_20%,#b6976a_10%,#6a5740_10%,#856d4f_20%,#5d4c38_10%)] flex items-center justify-center">
-<div class="w-24 h-24 bg-white rounded-full"></div>
-</div>
-
-</div>
-
-<!-- Right Content -->
-<div class="md:col-span-2">
-
-<h3 class="font-semibold mb-3">Focus of IT Services</h3>
-
-<ul class="space-y-2 text-sm">
-
-<li class="flex items-center gap-2">
-<span class="w-2 h-2 bg-yellow-700 rounded-full"></span>
-Cyber Security - 10%
-</li>
-
-<li class="flex items-center gap-2">
-<span class="w-2 h-2 bg-yellow-700 rounded-full"></span>
-Staff Augmentation - 10%
-</li>
-
-<li class="flex items-center gap-2">
-<span class="w-2 h-2 bg-yellow-700 rounded-full"></span>
-IT & Networking - 30%
-</li>
-
-<li class="flex items-center gap-2">
-<span class="w-2 h-2 bg-yellow-700 rounded-full"></span>
-Outsourcing - 10%
-</li>
-
-<li class="flex items-center gap-2">
-<span class="w-2 h-2 bg-yellow-700 rounded-full"></span>
-Network & System Administration - 30%
-</li>
-
-<li class="flex items-center gap-2">
-<span class="w-2 h-2 bg-yellow-700 rounded-full"></span>
-IT Consulting - 10%
-</li>
-
-</ul>
-
-</div>
-
-</div>
-
-
-<!-- Industry Focus -->
-<div class="mt-10">
-
-<h2 class="text-xl font-semibold mb-4">Industry Focus</h2>
-
-<div class="flex flex-wrap gap-3">
-
-<span class="px-4 py-2 border border-yellow-500 rounded-md">Business Services - 50%</span>
-<span class="px-4 py-2 border border-yellow-500 rounded-md">Education - 10%</span>
-<span class="px-4 py-2 border border-yellow-500 rounded-md">Real Estate - 10%</span>
-<span class="px-4 py-2 border border-yellow-500 rounded-md">Startups - 10%</span>
-<span class="px-4 py-2 border border-yellow-500 rounded-md">Healthcare & Medical - 5%</span>
-<span class="px-4 py-2 border border-yellow-500 rounded-md">Hospitality - 5%</span>
-<span class="px-4 py-2 border border-yellow-500 rounded-md">Legal & Compliance - 5%</span>
-<span class="px-4 py-2 border border-yellow-500 rounded-md">Transportation & Logistics - 5%</span>
-
-</div>
-
-</div>
-
-
-<!-- Client Focus -->
-<div class="mt-10">
-
-<h2 class="text-xl font-semibold mb-4">Client Focus</h2>
-
-<div class="w-full bg-gray-200 h-2 rounded-full">
-<div class="bg-yellow-600 h-2 rounded-full w-full"></div>
-</div>
-
-<p class="text-sm mt-2">100% Small Business</p>
-
-</div>
-
-</div>
-
-</body>
-$data = DB::table('company_services as cs')
-    ->join('company_sub_services as css', 'cs.id', '=', 'css.company_services_id')
-    ->join('services as s', 's.id', '=', 'css.sub_service_id')
-    ->where('cs.company_id', $company_id)
-    ->where('cs.service_id', $service_id)
-    ->select('s.name as sub_service_name', 'css.percentage')
-    ->get()
-    ->toArray();
-
-<canvas id="serviceChart" width="400" height="400"></canvas>
-
-<input type="hidden" id="company_id" value="1">
-
-<button class="service-btn" data-service="1">Web Development</button>
-<button class="service-btn" data-service="2">Mobile App</button>
-<button class="service-btn" data-service="3">Digital Marketing</button>
-
-var ctx = document.getElementById('serviceChart').getContext('2d');
-
-var serviceChart = new Chart(ctx, {
-    type: 'doughnut',
-    data: {
-        labels: [],
-        datasets: [{
-            data: [],
-            backgroundColor: [
-                '#ff6384',
-                '#36a2eb',
-                '#ffce56',
-                '#4bc0c0',
-                '#9966ff'
-            ]
-        }]
-    },
-    options: {
-        responsive: true
-    }
-});
-$(document).on("click",".service-btn",function(){
-
-    var service_id = $(this).data("service");
-    var company_id = $("#company_id").val();
-
-    $.ajax({
-        url: "/get-sub-services",
-        type: "POST",
-        data: {
-            service_id: service_id,
-            company_id: company_id,
-            _token: $('meta[name="csrf-token"]').attr('content')
-        },
-        success: function(response){
-
-            var labels = [];
-            var values = [];
-
-            response.forEach(function(item){
-                labels.push(item.sub_service_name);
-                values.push(item.percentage);
-            });
-
-            // UPDATE CHART
-            serviceChart.data.labels = labels;
-            serviceChart.data.datasets[0].data = values;
-            serviceChart.update();
-
-        }
-    });
-
-});
-
-public function getSubServices(Request $request)
+class DescriptionExportController extends Controller
 {
-    $company_id = $request->company_id;
-    $service_id = $request->service_id;
+    public function export()
+    {
+        $fileName = "descriptions.xls";
 
-    $data = DB::table('company_services as cs')
-        ->join('company_sub_services as css', 'cs.id', '=', 'css.company_services_id')
-        ->join('services as s', 's.id', '=', 'css.sub_service_id')
-        ->where('cs.company_id', $company_id)
-        ->where('cs.service_id', $service_id)
-        ->select('s.name as sub_service_name', 'css.percentage')
-        ->get();
+        $descriptions = DB::table('descriptions')
+            ->select('old_description', 'new_description')
+            ->get();
 
-    return response()->json($data);
+        $headers = [
+            "Content-Type" => "application/vnd.ms-excel",
+            "Content-Disposition" => "attachment; filename={$fileName}",
+            "Pragma" => "no-cache",
+            "Cache-Control" => "must-revalidate",
+            "Expires" => "0",
+        ];
+
+        $content = '
+        <table border="1">
+            <tr>
+                <th>Old Description</th>
+                <th>New Description</th>
+            </tr>
+        ';
+
+        foreach ($descriptions as $description) {
+
+            $content .= '
+            <tr>
+                <td>' . htmlspecialchars($description->old_description) . '</td>
+                <td>' . htmlspecialchars($description->new_description) . '</td>
+            </tr>
+            ';
+        }
+
+        $content .= '</table>';
+
+        return response($content, 200, $headers);
+    }
 }
-
-
-
-Route::post('/get-sub-services', [CompanyController::class,'getSubServices']);
